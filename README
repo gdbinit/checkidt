@@ -1,0 +1,16 @@
+ _______  __                  __     ___  ______    _______
+|   _   ||  |--..-----..----.|  |--.|   ||   _  \  |       |
+|.  1___||     ||  -__||  __||    < |.  ||.  |   \ |.|   | |
+|.  |___ |__|__||_____||____||__|__||.  ||.  |    \`-|.  |-'
+|:  1   |                           |:  ||:  1    /  |:  |
+|::.. . |                           |::.||::.. . /   |::.|
+`-------'                           `---'`------'    `---'
+
+CheckIDT - OS X version
+
+Based on kad's original code at Phrack #59
+http://www.phrack.org/issues.html?issue=59&id=4#article
+
+(c) fG!, 2011, 2012, 2013, 2014 - reverser@put.as - http://reverse.put.as
+
+A small util to dump the IDT table of a running system with kmem device enabled.
