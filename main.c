@@ -58,6 +58,8 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <fcntl.h>
+#include <mach/processor_set.h>
+#include <mach/mach_vm.h>
 
 #include "global.h"
 #include "kernel.h"
@@ -155,6 +157,12 @@ main(int argc, char ** argv)
 	}
 	OUTPUT_MSG("");
 	
+    if (getuid() != 0)
+    {
+        ERROR_MSG("This program needs to be run as root!");
+        return -1;
+    }
+    
 	cfg.kernel_type = get_kernel_type();
 	if (cfg.kernel_type == -1)
 	{
@@ -177,13 +185,43 @@ main(int argc, char ** argv)
     OUTPUT_MSG("[INFO] Kaslr slide is 0x%llx", cfg.kaslr_slide);
     OUTPUT_MSG("[INFO] IDT base address is: 0x%llx", cfg.idt_addr);
     OUTPUT_MSG("[INFO] IDT size: 0x%x\n", cfg.idt_size);
+
+    /* test if we can read kernel memory using processor_set_tasks() vulnerability */
+    /* vulnerability presented at BlackHat Asia 2014 by Ming-chieh Pan, Sung-ting Tsai. */
+    /* also described in Mac OS X and iOS Internals, page 387 */
+    host_t host_port = mach_host_self();
+    mach_port_t proc_set_default = 0;
+    mach_port_t proc_set_default_control = 0;
+    task_array_t all_tasks = NULL;
+    mach_msg_type_number_t all_tasks_cnt = 0;
+    kern_return_t kr = 0;
+    int valid_kernel_port = 0;
     
-	if( (cfg.fd_kmem = open("/dev/kmem",O_RDWR)) == -1 )
-	{
-		ERROR_MSG("Error while opening /dev/kmem. Is /dev/kmem enabled?");
-        ERROR_MSG("Verify that /Library/Preferences/SystemConfiguration/com.apple.Boot.plist has kmem=1 parameter configured.");
-		return -1;
-	}
+    kr = processor_set_default(host_port, &proc_set_default);
+    if (kr == KERN_SUCCESS)
+    {
+        kr = host_processor_set_priv(host_port, proc_set_default, &proc_set_default_control);
+        if (kr == KERN_SUCCESS)
+        {
+            kr = processor_set_tasks(proc_set_default_control, &all_tasks, &all_tasks_cnt);
+            if (kr == KERN_SUCCESS)
+            {
+                DEBUG_MSG("Found valid kernel port using processor_set_tasks() vulnerability!");
+                cfg.kernel_port = all_tasks[0];
+                valid_kernel_port = 1;
+            }
+        }
+    }
+    /* if we can't use the vulnerability then try /dev/kmem */
+    if (valid_kernel_port == 0)
+    {
+        if( (cfg.fd_kmem = open("/dev/kmem",O_RDWR)) == -1 )
+        {
+            ERROR_MSG("Error while opening /dev/kmem. Is /dev/kmem enabled?");
+            ERROR_MSG("Verify that /Library/Preferences/SystemConfiguration/com.apple.Boot.plist has kmem=1 parameter configured.");
+            return -1;
+        }
+    }
     
     if (cfg.resolve == 1)
     {
@@ -210,5 +248,6 @@ main(int argc, char ** argv)
 	{
 		compare_idt(&cfg);
 	}
+//    0xffffff802eef0970
 	return 0;
 }

@@ -56,6 +56,7 @@
 #include <sys/stat.h>
 #include <mach-o/loader.h>
 #include <mach-o/nlist.h>
+#include <mach/mach_vm.h>
 
 #include "global.h"
 
@@ -169,22 +170,37 @@ get_kaslr_slide(size_t *size, uint64_t *slide)
              );
 }
 
-void
-readkmem(int fd, void *buffer, off_t offset, const int size)
+/* warning: caller must always supply the buffer since we are using mach_vm_read_overwrite */
+kern_return_t
+readkmem(struct config *cfg, void *buffer, mach_vm_address_t target_addr, const int read_size)
 {
-	if(lseek(fd, offset, SEEK_SET) != offset)
-	{
-		ERROR_MSG("Error in lseek. Are you root?");
-		exit(-1);
-	}
-	if(read(fd, buffer, size) != size)
-	{
-		ERROR_MSG("Error while trying to read from kmem: %s.", strerror(errno));
-		exit(-1);
-	}
+    if (cfg->kernel_port != 0)
+    {
+        mach_vm_size_t outsize = 0;
+        kern_return_t kr = mach_vm_read_overwrite(cfg->kernel_port, target_addr, read_size, (mach_vm_address_t)buffer, &outsize);
+        if (kr != KERN_SUCCESS)
+        {
+            ERROR_MSG("mach_vm_read_overwrite failed!");
+            return KERN_FAILURE;
+        }
+    }
+    else
+    {
+        if(lseek(cfg->fd_kmem, (off_t)target_addr, SEEK_SET) != (off_t)target_addr)
+        {
+            ERROR_MSG("Error in lseek. Are you root?");
+            exit(-1);
+        }
+        if(read(cfg->fd_kmem, buffer, read_size) != read_size)
+        {
+            ERROR_MSG("Error while trying to read from kmem: %s.", strerror(errno));
+            exit(-1);
+        }
+    }
+    return KERN_SUCCESS;
 }
 
-void 
+void
 writekmem(int fd, void *buffer, off_t offset, const int size)
 {
 	if(lseek(fd, offset, SEEK_SET) != offset)

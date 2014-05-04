@@ -53,7 +53,7 @@
 int32_t get_kernel_type (void);
 int32_t get_kernel_version(void);
 void get_kaslr_slide(size_t *size, uint64_t *slide);
-void readkmem(int fd, void *buffer, off_t offset, const int size);
+kern_return_t readkmem(struct config *cfg, void *buffer, mach_vm_address_t target_addr, const int read_size);
 void writekmem(int fd, void *buffer, off_t offset, const int size);
 void retrieve_kernel_symbols(struct config *cfg);
 void resolve_symbol(struct config *cfg, mach_vm_address_t stub_addr, char *name, size_t name_size);

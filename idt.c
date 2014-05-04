@@ -135,7 +135,7 @@ compare_idt(struct config *cfg)
 		}
 		
 		// read the descriptor from kernel memory
-		readkmem(cfg->fd_kmem, &actual_descriptor, cfg->idt_addr + 16*x, sizeof(struct descriptor_idt));
+		readkmem(cfg, &actual_descriptor, cfg->idt_addr + 16*x, sizeof(struct descriptor_idt));
 		switch (cfg->kernel_type)
         {
 			case X86:
@@ -211,7 +211,7 @@ show_idt_info(struct config *cfg)
 	if(cfg->resolve == 1)
 	{
         OUTPUT_MSG("* Interrupt  *    Stub Address    *   Segment   * DPL  *      Type       *     Handler Name     *");
-		OUTPUT_MSG("-------------------------------------------------------------------------------------------------\n");
+		OUTPUT_MSG("-------------------------------------------------------------------------------------------------");
 	}
 	else
 	{
@@ -221,7 +221,7 @@ show_idt_info(struct config *cfg)
 	
 	if(cfg->interrupt != 0)
 	{
-		readkmem(cfg->fd_kmem, &descriptor, cfg->idt_addr + 16*cfg->interrupt, sizeof(struct descriptor_idt));
+		readkmem(cfg, &descriptor, cfg->idt_addr + 16*cfg->interrupt, sizeof(struct descriptor_idt));
 		switch (cfg->kernel_type)
         {
 			case X86:
@@ -279,7 +279,7 @@ show_idt_info(struct config *cfg)
 	{
 		for (x = 0; x < cfg->idt_entries; x++)
 		{
-			readkmem(cfg->fd_kmem, &descriptor, cfg->idt_addr + 16*x, sizeof(struct descriptor_idt));
+			readkmem(cfg, &descriptor, cfg->idt_addr + 16*x, sizeof(struct descriptor_idt));
             
 			switch (cfg->kernel_type)
             {
@@ -351,7 +351,7 @@ create_idt_archive(struct config *cfg)
 	}
 	for (uint32_t x = 0; x < cfg->idt_entries; x++)
 	{
-		readkmem(cfg->fd_kmem, &descriptor, cfg->idt_addr + 16*x, sizeof(struct descriptor_idt));
+		readkmem(cfg, &descriptor, cfg->idt_addr + 16*x, sizeof(struct descriptor_idt));
 		fwrite(&descriptor, sizeof(struct descriptor_idt), 1, file_idt);
 	}
 	fclose(file_idt);

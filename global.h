@@ -98,6 +98,7 @@ struct config
     uint16_t idt_size;
     uint32_t idt_entries; /* nr of idt entries, should be always 256 */
     SLIST_HEAD(, symbols) symbols_head;
+    mach_port_t kernel_port;
 };
 
 /* we only have 16 bytes descriptors because we are running in IA-32e mode! */
