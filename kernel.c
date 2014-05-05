@@ -7,7 +7,7 @@
  * |::.. . |                           |::.||::.. . /   |::.|
  * `-------'                           `---'`------'    `---'
  *
- * CheckIDT V1.2 - OS X version
+ * CheckIDT - OS X version
  *
  * Based on kad's original code at Phrack #59
  * http://www.phrack.org/issues.html?issue=59&id=4#article
@@ -66,23 +66,23 @@
 int32_t
 get_kernel_type(void)
 {
-	size_t size = 0;
+    size_t size = 0;
     int8_t ret = 0;
-	sysctlbyname("hw.machine", NULL, &size, NULL, 0);
-	char *machine = malloc(size);
-	sysctlbyname("hw.machine", machine, &size, NULL, 0);
+    sysctlbyname("hw.machine", NULL, &size, NULL, 0);
+    char *machine = malloc(size);
+    sysctlbyname("hw.machine", machine, &size, NULL, 0);
     
-	if (strcmp(machine, "i386") == 0)
+    if (strcmp(machine, "i386") == 0)
     {
-		ret = X86;
+        ret = X86;
     }
-	else if (strcmp(machine, "x86_64") == 0)
+    else if (strcmp(machine, "x86_64") == 0)
     {
-		ret = X64;
+        ret = X64;
     }
-	else
+    else
     {
-		ret = -1;
+        ret = -1;
     }
     
     free(machine);
@@ -203,16 +203,16 @@ readkmem(struct config *cfg, void *buffer, mach_vm_address_t target_addr, const 
 void
 writekmem(int fd, void *buffer, off_t offset, const int size)
 {
-	if(lseek(fd, offset, SEEK_SET) != offset)
-	{
-		ERROR_MSG("Error in lseek. Are you root?");
-		exit(-1);
-	}
-	if(write(fd, buffer, size) != size)
-	{
-		ERROR_MSG("Error while trying to write to kmem: %s.", strerror(errno));
-		exit(-1);
-	}
+    if(lseek(fd, offset, SEEK_SET) != offset)
+    {
+        ERROR_MSG("Error in lseek. Are you root?");
+        exit(-1);
+    }
+    if(write(fd, buffer, size) != size)
+    {
+        ERROR_MSG("Error while trying to write to kmem: %s.", strerror(errno));
+        exit(-1);
+    }
 }
 
 void

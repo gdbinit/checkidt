@@ -7,7 +7,7 @@
  * |::.. . |                           |::.||::.. . /   |::.|
  * `-------'                           `---'`------'    `---'
  *
- * CheckIDT V1.2 - OS X version
+ * CheckIDT - OS X version
  *
  * Based on kad's original code at Phrack #59
  * http://www.phrack.org/issues.html?issue=59&id=4#article
@@ -48,7 +48,7 @@
 #include <sys/queue.h>
 
 #define X86 0
-#define X64	1
+#define X64 1
 
 /*
  * Kernel descriptors for MACH - 64-bit flat address space.
@@ -81,15 +81,15 @@ struct symbols
 
 struct config
 {
-	char in_filename[MAXPATHLEN];
+    char in_filename[MAXPATHLEN];
     char out_filename[MAXPATHLEN];
-	int interrupt;
-	int read_file_archive;
-	int create_file_archive;
-	int compare_idt;
-	int restore_idt;
-	int show_all_descriptors;
-	int resolve;
+    int interrupt;
+    int read_file_archive;
+    int create_file_archive;
+    int compare_idt;
+    int restore_idt;
+    int show_all_descriptors;
+    int resolve;
     int fd_kmem;
     int kernel_type;
     uint64_t kaslr_slide;
@@ -105,13 +105,13 @@ struct config
 // 16 bytes IDT descriptor, used for 32 and 64 bits kernels (64 bit capable cpus!)
 struct descriptor_idt
 {
-	uint16_t offset_low;
-	uint16_t seg_selector;
-	uint8_t reserved;
-	uint8_t flag;
-	uint16_t offset_middle;
-	uint32_t offset_high;
-	uint32_t reserved2;
+    uint16_t offset_low;
+    uint16_t seg_selector;
+    uint8_t reserved;
+    uint8_t flag;
+    uint16_t offset_middle;
+    uint32_t offset_high;
+    uint32_t reserved2;
 } __attribute__((packed));
 
 /* logging macros */

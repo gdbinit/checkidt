@@ -7,7 +7,7 @@
  * |::.. . |                           |::.||::.. . /   |::.|
  * `-------'                           `---'`------'    `---'
  *
- * CheckIDT V1.2 - OS X version
+ * CheckIDT - OS X version
  *
  * Based on kad's original code at Phrack #59
  * http://www.phrack.org/issues.html?issue=59&id=4#article

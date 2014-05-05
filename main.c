@@ -20,7 +20,7 @@
  *
  * v1.0 - Initial port to OS X - almost everything is working :-)
  * v1.1 - Adding a new option -k to calculate sysent address
- *		  This might fail due to small opcodes differences
+ *        This might fail due to small opcodes differences
  *        Disassembly is probably a much better method than this
  *        It's just a PoC :-)
  * v1.2 - Minor cleanups
@@ -70,17 +70,17 @@
 static void
 usage(void)
 {
-	fprintf(stderr,"Available Options : \n");
-	fprintf(stderr,"       -a int_nr show all info about one interrupt\n");
-	fprintf(stderr,"       -A        showw all info about all interrupts\n");
-	fprintf(stderr,"       -c        create file archive\n");
-	fprintf(stderr,"       -r        read file archive\n");
-	fprintf(stderr,"       -o file   output filename (for creating file archive)\n");
-	fprintf(stderr,"       -C        compare save idt & new idt\n");
-	fprintf(stderr,"       -R        restore IDT\n");
-	fprintf(stderr,"       -i file   input filename to compare or read\n");
-	fprintf(stderr,"       -s        resolve symbols\n");
-	exit(1);
+    fprintf(stderr,"Available Options : \n");
+    fprintf(stderr,"       -a int_nr show all info about one interrupt\n");
+    fprintf(stderr,"       -A        showw all info about all interrupts\n");
+    fprintf(stderr,"       -c        create file archive\n");
+    fprintf(stderr,"       -r        read file archive\n");
+    fprintf(stderr,"       -o file   output filename (for creating file archive)\n");
+    fprintf(stderr,"       -C        compare save idt & new idt\n");
+    fprintf(stderr,"       -R        restore IDT\n");
+    fprintf(stderr,"       -i file   input filename to compare or read\n");
+    fprintf(stderr,"       -s        resolve symbols\n");
+    exit(1);
 }
 
 static void
@@ -93,90 +93,90 @@ header(void)
     OUTPUT_MSG(" |:  1   |                           |:  ||:  1    /  |:  |  ");
     OUTPUT_MSG(" |::.. . |                           |::.||::.. . /   |::.|  ");
     OUTPUT_MSG(" `-------'                           `---'`------'    `---'  ");
-	OUTPUT_MSG("   CheckIDT v%s - OS X version by fG! (original by kad)",VERSION);
-	OUTPUT_MSG("   -----------------------------------------------------");
+    OUTPUT_MSG("   CheckIDT v%s - OS X version by fG! (original by kad)",VERSION);
+    OUTPUT_MSG("   -----------------------------------------------------");
 }
 
 int
 main(int argc, char ** argv)
 {
-	int option = 0;
-	struct config cfg = {0};
+    int option = 0;
+    struct config cfg = {0};
 
-	header();
-	if (argc < 2)
-	{
-		usage();
-	}
-		
-	while( (option=getopt(argc,argv,"ha:Aco:Ci:rRs")) != -1 )
-	{
-		switch(option)
-		{
-			case 'h': 
-				usage();
-				exit(1);
-			case 'a':
-				cfg.interrupt = atoi(optarg);
-				break;
-			case 'A': 
-				cfg.show_all_descriptors = 1;
-				break;
-			case 'c': 
-				cfg.create_file_archive = 1;
-				break;
-			case 'r': 
-				cfg.read_file_archive = 1;
-				break;
-			case 'R': 
-				cfg.restore_idt = 1;
-				break;
-			case 'o':
-				if(strlen(optarg) > MAXPATHLEN - 1)
-				{
-					ERROR_MSG("File name too long.");
-					return -1;
-				}
-				strncpy(cfg.out_filename, optarg, sizeof(cfg.out_filename));
-				break;
-			case 'C': 
-				cfg.compare_idt = 1;
-				break;
-			case 'i': 
-				if(strlen(optarg) > MAXPATHLEN - 1)
-				{
-					ERROR_MSG("File name too long.");
-					return -1;
-				}
-				strncpy(cfg.in_filename, optarg, sizeof(cfg.in_filename));
-				break;
-			case 's': 
-				cfg.resolve = 1;
-				break;
-		}
-	}
-	OUTPUT_MSG("");
-	
+    header();
+    if (argc < 2)
+    {
+        usage();
+    }
+        
+    while( (option=getopt(argc,argv,"ha:Aco:Ci:rRs")) != -1 )
+    {
+        switch(option)
+        {
+            case 'h':
+                usage();
+                exit(1);
+            case 'a':
+                cfg.interrupt = atoi(optarg);
+                break;
+            case 'A': 
+                cfg.show_all_descriptors = 1;
+                break;
+            case 'c': 
+                cfg.create_file_archive = 1;
+                break;
+            case 'r': 
+                cfg.read_file_archive = 1;
+                break;
+            case 'R': 
+                cfg.restore_idt = 1;
+                break;
+            case 'o':
+                if(strlen(optarg) > MAXPATHLEN - 1)
+                {
+                    ERROR_MSG("File name too long.");
+                    return -1;
+                }
+                strncpy(cfg.out_filename, optarg, sizeof(cfg.out_filename));
+                break;
+            case 'C': 
+                cfg.compare_idt = 1;
+                break;
+            case 'i': 
+                if(strlen(optarg) > MAXPATHLEN - 1)
+                {
+                    ERROR_MSG("File name too long.");
+                    return -1;
+                }
+                strncpy(cfg.in_filename, optarg, sizeof(cfg.in_filename));
+                break;
+            case 's': 
+                cfg.resolve = 1;
+                break;
+        }
+    }
+    OUTPUT_MSG("");
+    
     if (getuid() != 0)
     {
         ERROR_MSG("This program needs to be run as root!");
         return -1;
     }
     
-	cfg.kernel_type = get_kernel_type();
-	if (cfg.kernel_type == -1)
-	{
-		ERROR_MSG("Unable to retrieve kernel type.");
-		return -1;
-	}
+    cfg.kernel_type = get_kernel_type();
+    if (cfg.kernel_type == -1)
+    {
+        ERROR_MSG("Unable to retrieve kernel type.");
+        return -1;
+    }
     else if (cfg.kernel_type == X86)
     {
         ERROR_MSG("32 bits kernels not supported.");
         return -1;
     }
     
-	cfg.idt_addr = get_addr_idt(cfg.kernel_type);
-	cfg.idt_size = get_size_idt();
+    cfg.idt_addr = get_addr_idt(cfg.kernel_type);
+    cfg.idt_size = get_size_idt();
     cfg.idt_entries = cfg.idt_size / sizeof(struct descriptor_idt);
     /* we need to populate the size variable else syscall fails */
     cfg.kaslr_size = sizeof(cfg.kaslr_size);
@@ -229,25 +229,24 @@ main(int argc, char ** argv)
     }
     
     if(cfg.interrupt >= 0 || cfg.show_all_descriptors == 1)
-	{
-		show_idt_info(&cfg);
-	}
-	if(cfg.create_file_archive == 1)
-	{
-		create_idt_archive(&cfg);
-	}
-	if(cfg.read_file_archive == 1)
-	{
-		read_idt_archive(&cfg);
-	}
-	if(cfg.compare_idt == 1)
-	{
-		compare_idt(&cfg);
-	}
-	if(cfg.restore_idt == 1)
-	{
-		compare_idt(&cfg);
-	}
-//    0xffffff802eef0970
-	return 0;
+    {
+        show_idt_info(&cfg);
+    }
+    if(cfg.create_file_archive == 1)
+    {
+        create_idt_archive(&cfg);
+    }
+    if(cfg.read_file_archive == 1)
+    {
+        read_idt_archive(&cfg);
+    }
+    if(cfg.compare_idt == 1)
+    {
+        compare_idt(&cfg);
+    }
+    if(cfg.restore_idt == 1)
+    {
+        compare_idt(&cfg);
+    }
+    return 0;
 }
